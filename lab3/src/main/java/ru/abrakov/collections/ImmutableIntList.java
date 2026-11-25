@@ -2,28 +2,30 @@ package ru.abrakov.collections;
 
 import java.util.Arrays;
 
-/**
- * Обертка над массивом целых чисел.
- * Внутренний массив скрыт: входные и возвращаемые массивы копируются.
- * Замена элемента доступна только через проверяемый метод set().
- */
 public class ImmutableIntList {
     private final int[] values;
 
-    /** Принимает ноль или более чисел; массив копируется. */
-    public ImmutableIntList(int... values) {
+    public ImmutableIntList(int[] values) {
         if (values == null) {
-            throw new IllegalArgumentException("Массив значений не должен быть null");
+            throw new IllegalArgumentException("Массив не должен быть null.");
         }
-        this.values = Arrays.copyOf(values, values.length);
+        this.values = values.clone();
     }
 
-    /** Создает независимую копию другого списка. */
+    public ImmutableIntList(int firstValue, int... otherValues) {
+        if (otherValues == null) {
+            throw new IllegalArgumentException("Набор значений не должен быть null.");
+        }
+        this.values = new int[otherValues.length + 1];
+        this.values[0] = firstValue;
+        System.arraycopy(otherValues, 0, this.values, 1, otherValues.length);
+    }
+
     public ImmutableIntList(ImmutableIntList other) {
         if (other == null) {
-            throw new IllegalArgumentException("Исходный список не должен быть null");
+            throw new IllegalArgumentException("Список для копирования не должен быть null.");
         }
-        this.values = Arrays.copyOf(other.values, other.values.length);
+        this.values = other.values.clone();
     }
 
     public int get(int index) {
@@ -31,10 +33,9 @@ public class ImmutableIntList {
         return values[index];
     }
 
-    /** Заменяет элемент внутри обертки после проверки допустимости индекса. */
-    public void set(int index, int newValue) {
+    public void set(int index, int value) {
         checkIndex(index);
-        values[index] = newValue;
+        values[index] = value;
     }
 
     public boolean isEmpty() {
@@ -45,15 +46,14 @@ public class ImmutableIntList {
         return values.length;
     }
 
-    /** Возвращает копию внутреннего массива. */
     public int[] toArray() {
-        return Arrays.copyOf(values, values.length);
+        return values.clone();
     }
 
     private void checkIndex(int index) {
         if (index < 0 || index >= values.length) {
             throw new IndexOutOfBoundsException(
-                    "Индекс " + index + " вне допустимого диапазона [0, " + (values.length - 1) + "]"
+                    "Индекс должен быть от 0 до " + (values.length - 1) + ". Получено: " + index
             );
         }
     }

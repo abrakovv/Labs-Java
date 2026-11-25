@@ -1,68 +1,63 @@
 package ru.abrakov.geometry;
 
-import java.util.Locale;
 import java.util.Objects;
 
-/**
- * Отрезок, заданный начальной и конечной точками.
- * Линия хранит собственные копии точек и никогда не разделяет их объекты
- * с переданными извне точками или с другой линией.
- */
 public class Line implements Cloneable {
     private Point2D start;
     private Point2D end;
 
+    public Line(int startX, int startY, int endX, int endY) {
+        this(new Point2D(startX, startY), new Point2D(endX, endY));
+    }
+
     public Line(Point2D start, Point2D end) {
-        Objects.requireNonNull(start, "Начальная точка обязательна");
-        Objects.requireNonNull(end, "Конечная точка обязательна");
-        this.start = copyOf(start);
-        this.end = copyOf(end);
+        this.start = requirePoint(start).copy();
+        this.end = requirePoint(end).copy();
     }
 
-    public Line(int x1, int y1, int x2, int y2) {
-        this(new Point2D(x1, y1), new Point2D(x2, y2));
+    public Line(Line other) {
+        this(requireLine(other).start, other.end);
     }
 
-    private static Point2D copyOf(Point2D point) {
-        return new Point2D(point.getX(), point.getY());
+    private static Line requireLine(Line line) {
+        if (line == null) {
+            throw new IllegalArgumentException("Линия не должна быть null.");
+        }
+        return line;
     }
 
-    /** Возвращает копию начальной точки, а не внутренний объект линии. */
+    private static Point2D requirePoint(Point2D point) {
+        if (point == null) {
+            throw new IllegalArgumentException("Координаты точки не должны быть null.");
+        }
+        return point;
+    }
+
     public Point2D getStart() {
-        return copyOf(start);
+        return start.copy();
     }
 
-    /** Возвращает копию конечной точки, а не внутренний объект линии. */
     public Point2D getEnd() {
-        return copyOf(end);
+        return end.copy();
     }
 
-    public void setStart(Point2D start) {
-        Objects.requireNonNull(start, "Начальная точка обязательна");
-        this.start = copyOf(start);
+    public void setStart(Point2D point) {
+        this.start = requirePoint(point).copy();
     }
 
-    public void setEnd(Point2D end) {
-        Objects.requireNonNull(end, "Конечная точка обязательна");
-        this.end = copyOf(end);
-    }
-
-    public void setStart(int x, int y) {
-        this.start = new Point2D(x, y);
-    }
-
-    public void setEnd(int x, int y) {
-        this.end = new Point2D(x, y);
+    public void setEnd(Point2D point) {
+        this.end = requirePoint(point).copy();
     }
 
     public double length() {
         return start.distanceTo(end);
     }
 
-    /**
-     * Линии равны, если совпадают их начальные точки и совпадают конечные точки.
-     * Поэтому линия, направленная в обратную сторону, не считается равной.
-     */
+    @Override
+    public Line clone() {
+        return new Line(start, end);
+    }
+
     @Override
     public boolean equals(Object object) {
         if (this == object) {
@@ -71,23 +66,19 @@ public class Line implements Cloneable {
         if (!(object instanceof Line other)) {
             return false;
         }
-        return start.equals(other.start) && end.equals(other.end);
+        return start.getX() == other.start.getX()
+                && start.getY() == other.start.getY()
+                && end.getX() == other.end.getX()
+                && end.getY() == other.end.getY();
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(start, end);
-    }
-
-    /** Создает независимую копию линии вместе с отдельными объектами точек. */
-    @Override
-    public Line clone() {
-        return new Line(start, end);
+        return Objects.hash(start.getX(), start.getY(), end.getX(), end.getY());
     }
 
     @Override
     public String toString() {
-        return "Линия от " + start + " до " + end
-                + "; длина = " + String.format(Locale.ROOT, "%.3f", length());
+        return "Линия от " + start + " до " + end;
     }
 }

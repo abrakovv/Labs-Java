@@ -5,17 +5,23 @@ import ru.abrakov.geometry.Line;
 import ru.abrakov.geometry.Point2D;
 import ru.abrakov.geometry.PolygonalChain;
 import ru.abrakov.geometry.Square;
-import ru.abrakov.points.FlexiblePoint;
+import ru.abrakov.points.AbstractPoint;
+import ru.abrakov.points.ColoredPoint;
+import ru.abrakov.points.ColoredTimedPoint;
 import ru.abrakov.points.Point3D;
+import ru.abrakov.points.TimedPoint;
 
+import java.util.Arrays;
+import java.util.Locale;
 import java.util.Scanner;
 
-/** Единственная точка входа. Последовательно демонстрирует все задачи варианта № 1. */
 public class Main {
-    private final Scanner input;
+    private final Scanner scanner;
+    private final String title;
 
     public Main() {
-        input = new Scanner(System.in);
+        this.scanner = new Scanner(System.in);
+        this.title = "Лабораторная работа № 3. Вариант 1";
     }
 
     public static void main(String[] args) {
@@ -24,310 +30,388 @@ public class Main {
 
     private void run(String[] args) {
         printHeader();
-        demonstrateSeparateLines();
-        demonstrateSquare();
-        demonstrateImmutableIntList();
-        demonstratePoint3D();
-        demonstrateFlexiblePoints();
-        demonstrateAddition();
-        demonstrateLineEqualsAndClone();
-        demonstratePower(args);
-        System.out.println("\nВсе демонстрации лабораторной работы завершены.");
+
+        task1SeparateLines();
+        task1Square();
+        task2ImmutableList();
+        task3Point3D();
+        task4FlexiblePoints();
+        task5Addition();
+        Line lineForClone = task6CompareLines();
+        task7Packages();
+        task7MainPackageDemo();
+        task7Power(args);
+        task8CloneLine(lineForClone);
+
+        System.out.println("\nРабота завершена.");
     }
 
     private void printHeader() {
-        System.out.println("============================================================");
-        System.out.println("       ЛАБОРАТОРНАЯ РАБОТА № 3 — ВАРИАНТ 1");
-        System.out.println("       Объектно-ориентированное программирование");
-        System.out.println("============================================================");
+        System.out.println("==================================================");
+        System.out.println(title);
+        System.out.println("==================================================");
     }
 
-    /** Задание 1.6: линии не должны разделять объекты своих точек. */
-    private void demonstrateSeparateLines() {
-        section("1. Задание 1.6 — отдельные линии");
+    private void task1SeparateLines() {
+        section("Задание 1. Инкапсуляция", "Задача 6. Отдельные линии");
 
-        Point2D sharedStart = new Point2D(
-                readInt("Введите X общей исходной точки: "),
-                readInt("Введите Y общей исходной точки: ")
+        Point2D commonStart = new Point2D(
+                readInt("Координата X общей начальной точки: "),
+                readInt("Координата Y общей начальной точки: ")
         );
         Point2D firstEnd = new Point2D(
-                readInt("Введите X конца первой линии: "),
-                readInt("Введите Y конца первой линии: ")
+                readInt("Координата X конца первой линии: "),
+                readInt("Координата Y конца первой линии: ")
         );
         Point2D secondEnd = new Point2D(
-                readInt("Введите X конца второй линии: "),
-                readInt("Введите Y конца второй линии: ")
+                readInt("Координата X конца второй линии: "),
+                readInt("Координата Y конца второй линии: ")
         );
 
-        // Обеим линиям передается один и тот же объект sharedStart.
-        // Конструктор Line обязан скопировать его, а не сохранить общую ссылку.
-        Line firstLine = new Line(sharedStart, firstEnd);
-        Line secondLine = new Line(sharedStart, secondEnd);
+        Line first = new Line(commonStart, firstEnd);
+        Line second = new Line(commonStart, secondEnd);
 
-        System.out.println("Первая линия:  " + firstLine);
-        System.out.println("Вторая линия:  " + secondLine);
+        System.out.println("Первая линия: " + first);
+        System.out.println("Вторая линия: " + second);
 
-        sharedStart.setCoordinates(10_000, 10_000);
-        System.out.println("После изменения исходной общей точки:");
-        System.out.println("Первая линия не изменилась: " + firstLine);
-        System.out.println("Вторая линия не изменилась: " + secondLine);
-
-        System.out.println("\nИзменение координат первой линии ее методами:");
-        firstLine.setStart(
-                readInt("Новая X начальной точки первой линии: "),
-                readInt("Новая Y начальной точки первой линии: ")
+        System.out.println("Изменим исходную точку, которую передали обеим линиям.");
+        commonStart.setCoordinates(
+                readInt("Новое значение X исходной точки: "),
+                readInt("Новое значение Y исходной точки: ")
         );
-        firstLine.setEnd(
-                readInt("Новая X конечной точки первой линии: "),
-                readInt("Новая Y конечной точки первой линии: ")
-        );
-        System.out.println("Обновленная первая линия: " + firstLine);
-        System.out.println("Начало: " + firstLine.getStart());
-        System.out.println("Конец:  " + firstLine.getEnd());
+        System.out.println("Первая линия после изменения исходной точки: " + first);
+        System.out.println("Вторая линия после изменения исходной точки: " + second);
 
-        Point2D externalCopy = firstLine.getStart();
-        externalCopy.setCoordinates(-10_000, -10_000);
-        System.out.println("Изменение точки, полученной через getter, не меняет линию: " + firstLine);
+        System.out.println("Изменим начало и конец первой линии.");
+        first.setStart(new Point2D(
+                readInt("Новое X начала первой линии: "),
+                readInt("Новое Y начала первой линии: ")
+        ));
+        first.setEnd(new Point2D(
+                readInt("Новое X конца первой линии: "),
+                readInt("Новое Y конца первой линии: ")
+        ));
+
+        System.out.println("Первая линия: " + first);
+        System.out.println("Начало линии: " + first.getStart());
+        System.out.println("Конец линии: " + first.getEnd());
+
+        Point2D receivedStart = first.getStart();
+        receivedStart.setCoordinates(100, 100);
+        System.out.println("Изменение полученной точки не меняет линию: " + first);
+
+        System.out.printf(Locale.US, "Длина первой линии: %.3f%n", first.length());
     }
 
-    /** Задание 1.12: заданный в методичке квадрат и полученная из него ломаная. */
-    private void demonstrateSquare() {
-        section("2. Задание 1.12 — квадрат и ломаная");
+    private void task1Square() {
+        section("Задание 1. Инкапсуляция", "Задача 12. Квадрат");
 
-        // Координаты и сторона фиксированы условием задания: {5; 3}, 23.
+        Square squareByPoint = new Square(new Point2D(5, 3), 23);
         Square square = new Square(5, 3, 23);
-        System.out.println(square);
-        System.out.println("Получение размера стороны через getter: " + square.getSide());
+        System.out.println("Квадрат, созданный с помощью точки: " + squareByPoint);
+        System.out.println("Квадрат, созданный с помощью координат x и y: " + square);
+        System.out.println("Левый верхний угол: " + square.getTopLeft());
+        System.out.println("Сторона квадрата: " + square.getSide());
 
         PolygonalChain chain = square.getPolygonalChain();
-        System.out.println("Ломаная, полученная из квадрата: " + chain);
-        System.out.println("Последняя точка ломаной: " + chain.getPoint(chain.getPointCount() - 1));
-        System.out.printf("Исходная длина ломаной: %.3f%n", chain.length());
+        System.out.println(chain);
+        System.out.printf(Locale.US, "Длина ломаной: %.3f%n", chain.length());
 
-        // В методичке требуется переместить последнюю точку именно в {15; 25}.
-        chain.setPoint(chain.getPointCount() - 1, 15, 25);
-        System.out.println("После переноса последней точки в {15; 25}: " + chain);
-        System.out.printf("Новая длина ломаной: %.3f%n", chain.length());
+        int lastPoint = chain.getPointCount() - 1;
+        chain.setPoint(lastPoint, new Point2D(15, 25));
 
-        System.out.println("Проверка возможности изменить сторону квадрата:");
-        square.setSide(24);
-        System.out.println("После изменения стороны: " + square + "; getter = " + square.getSide());
-        square.setSide(23); // Возвращаем исходное значение для сохранения условия задания.
+        System.out.println("Последняя точка перемещена в {15; 25}.");
+        System.out.println(chain);
+        System.out.println("Последняя точка: " + chain.getPoint(lastPoint));
+        System.out.printf(Locale.US, "Новая длина ломаной: %.3f%n", chain.length());
 
-        System.out.println("Проверка запрета отрицательной стороны при создании:");
+        try {
+            new Square(5, 3, 0);
+        } catch (IllegalArgumentException exception) {
+            System.out.println("Проверка конструктора с нулевой стороной: " + exception.getMessage());
+        }
+
         try {
             new Square(5, 3, -1);
         } catch (IllegalArgumentException exception) {
-            System.out.println("Некорректный квадрат не создан: " + exception.getMessage());
+            System.out.println("Проверка конструктора с отрицательной стороной: " + exception.getMessage());
         }
 
-        System.out.println("Проверка запрета нулевой стороны при изменении:");
         try {
             square.setSide(0);
         } catch (IllegalArgumentException exception) {
-            System.out.println("Некорректный размер отклонен: " + exception.getMessage());
+            System.out.println("Проверка изменения стороны на 0: " + exception.getMessage());
         }
-        System.out.println("Квадрат сохранил прежнюю сторону: " + square);
-    }
-
-    /** Задание 2.1: обертка над массивом целых чисел. */
-    private void demonstrateImmutableIntList() {
-        section("3. Задание 2.1 — неизменяемый список значений");
-
-        int count = readIntInRange("Сколько целых чисел добавить в список (0–50): ", 0, 50);
-        int[] sourceValues = new int[count];
-        for (int i = 0; i < count; i++) {
-            sourceValues[i] = readInt("Значение №" + (i + 1) + ": ");
-        }
-
-        ImmutableIntList values = new ImmutableIntList(sourceValues);
-        System.out.println("Список, созданный из массива: " + values);
-        System.out.println("Проверка пустого списка: " + new ImmutableIntList().isEmpty());
-
-        System.out.println("\nПроверка конструктора с отдельными значениями через запятую:");
-        int firstSeparate = readInt("Первое число: ");
-        int secondSeparate = readInt("Второе число: ");
-        int thirdSeparate = readInt("Третье число: ");
-        ImmutableIntList separateValues = new ImmutableIntList(firstSeparate, secondSeparate, thirdSeparate);
-        System.out.println("Список из отдельных значений: " + separateValues);
-
-        System.out.println("\nОсновной список: " + values);
-        System.out.println("Размер: " + values.size());
-        System.out.println("Список пуст: " + values.isEmpty());
-
-        if (!values.isEmpty()) {
-            int index = readIntInRange("Индекс элемента для чтения (" + (values.size() - 1) + "): ",
-                    0, values.size() - 1);
-            System.out.println("Элемент с индексом " + index + ": " + values.get(index));
-
-            int newValue = readInt("Новое значение для элемента с индексом " + index + ": ");
-            values.set(index, newValue);
-            System.out.println("Список после замены: " + values);
-        } else {
-            System.out.println("Список пуст: чтение и замена элементов не выполняются.");
-        }
-
-        int[] returnedArray = values.toArray();
-        System.out.println("Содержимое стандартного массива: " + java.util.Arrays.toString(returnedArray));
-        if (returnedArray.length > 0) {
-            returnedArray[0] = 999_999;
-            System.out.println("Изменили полученный массив: " + java.util.Arrays.toString(returnedArray));
-            System.out.println("Внутренний список при этом не изменился: " + values);
-        }
-
-        ImmutableIntList copied = new ImmutableIntList(values);
-        System.out.println("Список, созданный копирующим конструктором: " + copied);
 
         try {
-            values.get(-1);
+            square.setSide(-1);
+        } catch (IllegalArgumentException exception) {
+            System.out.println("Проверка изменения стороны на отрицательное значение: " + exception.getMessage());
+        }
+
+        square.setSide(24);
+        System.out.println("После изменения стороны: " + square);
+        System.out.println("Текущая длина стороны: " + square.getSide());
+    }
+
+    private void task2ImmutableList() {
+        section("Задание 2. Разработка структур данных", "Задача 1. Неизменяемый массив");
+
+        System.out.println("Создание списка из массива целых чисел.");
+        System.out.println("Чтобы проверить пустой список, нажмите Enter. Для непустого списка введите числа.");
+        int[] array = readIntArray("Введите элементы через пробел или запятую: ", 0, 50);
+        ImmutableIntList arrayList = new ImmutableIntList(array);
+        System.out.println("Список: " + arrayList);
+        System.out.println("Размер списка: " + arrayList.size());
+        System.out.println("Список пуст: " + arrayList.isEmpty());
+
+        System.out.println("\nСоздание списка с передачей чисел как отдельных значений.");
+        int[] separateValues = readIntArray("Введите значения через пробел или запятую: ", 1, 50);
+        ImmutableIntList valuesList = new ImmutableIntList(
+                separateValues[0], Arrays.copyOfRange(separateValues, 1, separateValues.length)
+        );
+        System.out.println("Список: " + valuesList);
+
+        ImmutableIntList copiedList = new ImmutableIntList(valuesList);
+        System.out.println("Копия другого списка: " + copiedList);
+
+        int index = readIntInRange(
+                "Введите индекс элемента для чтения и замены (от 0 до "
+                        + (valuesList.size() - 1) + "): ",
+                0,
+                valuesList.size() - 1
+        );
+        System.out.println("Элемент с индексом " + index + ": " + valuesList.get(index));
+        valuesList.set(index, readInt("Введите новое значение: "));
+        System.out.println("Список после замены: " + valuesList);
+        System.out.println("Исходная копия не изменилась: " + copiedList);
+
+        int[] resultArray = valuesList.toArray();
+        System.out.println("Массив, полученный из списка: " + Arrays.toString(resultArray));
+        resultArray[0] = resultArray[0] + 100;
+        System.out.println("Полученный массив после изменения: " + Arrays.toString(resultArray));
+        System.out.println("Сам список после изменения массива: " + valuesList);
+
+        try {
+            valuesList.get(valuesList.size());
         } catch (IndexOutOfBoundsException exception) {
-            System.out.println("Проверка неверного индекса сработала: " + exception.getMessage());
+            System.out.println("Проверка неверного индекса при чтении: " + exception.getMessage());
+        }
+
+        try {
+            valuesList.set(valuesList.size(), 0);
+        } catch (IndexOutOfBoundsException exception) {
+            System.out.println("Проверка неверного индекса при замене: " + exception.getMessage());
         }
     }
 
-    /** Задание 3.5: трехмерная точка наследуется от двумерной. */
-    private void demonstratePoint3D() {
-        section("4. Задание 3.5 — трехмерная точка");
+    private void task3Point3D() {
+        section("Задание 3. Наследование", "Задача 5. Трехмерная точка");
 
-        Point3D first = new Point3D(
-                readInt("Точка A — X: "),
-                readInt("Точка A — Y: "),
-                readInt("Точка A — Z: ")
+        Point3D point = new Point3D(
+                readInt("Координата X: "),
+                readInt("Координата Y: "),
+                readInt("Координата Z: ")
         );
-        Point3D second = new Point3D(
-                readInt("Точка B — X: "),
-                readInt("Точка B — Y: "),
-                readInt("Точка B — Z: ")
-        );
+        System.out.println("Трехмерная точка: " + point);
+        System.out.println("Координата Z: " + point.getZ());
 
-        System.out.println("Точка A: " + first);
-        System.out.println("Точка B: " + second);
-        System.out.println("Координаты точки A через getters: X=" + first.getX()
-                + ", Y=" + first.getY() + ", Z=" + first.getZ());
-        System.out.printf("Расстояние между точками: %.3f%n", first.distanceTo(second));
+        point.setZ(readInt("Введите новое значение Z: "));
+        System.out.println("Точка после изменения Z: " + point);
 
-        first.setZ(readInt("Введите новое значение Z для точки A: "));
-        System.out.println("Точка A после изменения координаты Z: " + first);
-
-        // Экземпляр трехмерной точки можно хранить в ссылке базового типа Point2D.
-        Point2D baseReference = first;
-        System.out.println("Та же точка через ссылку базового класса: " + baseReference);
+        Point2D point2D = point;
+        System.out.println("Та же точка через ссылку Point2D: " + point2D);
     }
 
-    /** Задание 4.5: координаты и дополнительные характеристики в разных сочетаниях. */
-    private void demonstrateFlexiblePoints() {
-        section("5. Задание 4.5 — точки с разными характеристиками");
+    private void task4FlexiblePoints() {
+        section("Задание 4. Создание иерархий", "Задача 5. Точки");
 
-        System.out.println("Точка с одной координатой и цветом:");
-        int x1 = readInt("X: ");
-        String color1 = readText("Цвет: ");
-        FlexiblePoint oneCoordinate = new FlexiblePoint(x1, color1);
-        System.out.println(oneCoordinate);
+        System.out.println("Точка с одной координатой и цветом.");
+        int x1 = readInt("Координата X: ");
+        String color1 = readText("Цвет точки: ");
+        ColoredPoint first = new ColoredPoint(x1, color1);
+        System.out.println(first);
+        System.out.println("Координаты: " + Arrays.toString(first.getCoordinates()));
+        System.out.println("Цвет: " + first.getColor());
 
-        System.out.println("\nТочка с тремя координатами и временем появления:");
-        int x2 = readInt("X: ");
-        int y2 = readInt("Y: ");
-        int z2 = readInt("Z: ");
-        String time2 = readText("Время появления (например, 11:00): ");
-        FlexiblePoint threeCoordinates = new FlexiblePoint(x2, y2, z2, null, time2);
-        System.out.println(threeCoordinates);
+        System.out.println("\nТочка с тремя координатами и временем появления.");
+        int x2 = readInt("Координата X: ");
+        int y2 = readInt("Координата Y: ");
+        int z2 = readInt("Координата Z: ");
+        String time2 = readTime("Время появления (ЧЧ:ММ): ");
+        TimedPoint second = new TimedPoint(new int[]{x2, y2, z2}, time2);
+        System.out.println(second);
+        System.out.println("Время появления: " + second.getAppearanceTime());
 
-        System.out.println("\nТочка с двумя координатами, временем и цветом:");
-        int x3 = readInt("X: ");
-        int y3 = readInt("Y: ");
-        String time3 = readText("Время появления (например, 15:35): ");
-        String color3 = readText("Цвет: ");
-        FlexiblePoint twoCoordinates = new FlexiblePoint(x3, y3, color3, time3);
-        System.out.println(twoCoordinates);
+        System.out.println("\nТочка с двумя координатами, временем появления и цветом.");
+        int x3 = readInt("Координата X: ");
+        int y3 = readInt("Координата Y: ");
+        String time3 = readTime("Время появления (ЧЧ:ММ): ");
+        String color3 = readText("Цвет точки: ");
+        ColoredTimedPoint third = new ColoredTimedPoint(new int[]{x3, y3}, time3, color3);
+        System.out.println(third);
+        System.out.println("Цвет: " + third.getColor());
+        System.out.println("Время появления: " + third.getAppearanceTime());
+
+        AbstractPoint[] points = {first, second, third};
+        System.out.println("\nТочки через массив типа AbstractPoint:");
+        for (AbstractPoint point : points) {
+            System.out.println(point);
+        }
     }
 
-    /** Задание 5.1: сумма любого количества чисел и расчеты из методички. */
-    private void demonstrateAddition() {
-        section("6. Задание 5.1 — сложение");
+    private void task5Addition() {
+        section("Задание 5. Полиморфизм", "Задача 1. Сложение");
 
-        SumUtils sumUtils = new SumUtils();
-        System.out.println(sumUtils);
-        System.out.printf("1) 2 + 3/5 + 2.3 = %.6f%n", sumUtils.sum(2.0, 3.0 / 5.0, 2.3));
-        System.out.printf("2) 3.6 + 49/12 + 3 + 3/2 = %.6f%n",
-                sumUtils.sum(3.6, 49.0 / 12.0, 3.0, 3.0 / 2.0));
-        System.out.printf("3) 1/3 + 1 = %.6f%n", sumUtils.sum(1.0 / 3.0, 1.0));
+        SumUtils sum = new SumUtils();
+        System.out.println("Класс: " + sum);
 
-        int count = readIntInRange("Сколько дополнительных чисел сложить (0–50): ", 0, 50);
+        System.out.printf(Locale.US, "2 + 3/5 + 2.3 = %.6f%n",
+                sum.sum(2.0, 3.0 / 5.0, 2.3));
+        System.out.printf(Locale.US, "3.6 + 49/12 + 3 + 3/2 = %.6f%n",
+                sum.sum(3.6, 49.0 / 12.0, 3.0, 3.0 / 2.0));
+        System.out.printf(Locale.US, "1/3 + 1 = %.6f%n",
+                sum.sum(1.0 / 3.0, 1.0));
+    }
+
+    private Line task6CompareLines() {
+        section("Задание 6. Полиморфное сравнение", "Задача 3. Сравнение линий");
+
+        Line first = new Line(
+                readInt("X начала линии: "),
+                readInt("Y начала линии: "),
+                readInt("X конца линии: "),
+                readInt("Y конца линии: ")
+        );
+        Line second = new Line(first.getStart(), first.getEnd());
+        Line reversed = new Line(first.getEnd(), first.getStart());
+
+        System.out.println("Первая линия: " + first);
+        System.out.println("Вторая линия с такими же координатами: " + second);
+        System.out.println("Первая и вторая линии равны: " + first.equals(second));
+        System.out.println("Их hashCode совпадает: " + (first.hashCode() == second.hashCode()));
+        System.out.println("Линия с обратным направлением: " + reversed);
+        System.out.println("Первая и обратная линии равны: " + first.equals(reversed));
+
+        return first;
+    }
+
+    private void task7Packages() {
+        section("Задание 7. Пакеты", "Задача 1. Навести порядок");
+        System.out.println("ru.abrakov.collections — ImmutableIntList");
+        System.out.println("ru.abrakov.geometry — Point2D, Line, PolygonalChain, Square");
+        System.out.println("ru.abrakov.points — Point3D, AbstractPoint, ColoredPoint, TimedPoint, ColoredTimedPoint");
+        System.out.println("ru.abrakov.main — Main, SumUtils, PowerCalculator");
+    }
+
+    private void task7MainPackageDemo() {
+        section("Задание 7. Пакеты", "Задача 2. Главный метод");
+
+        System.out.println("Главный класс: Main, пакет ru.abrakov.main.");
+        System.out.println("Класс SumUtils находится в том же пакете.");
+        System.out.println("Введите числа для проверки метода сложения.");
+
+        int count = readIntInRange("Количество чисел (1–50): ", 1, 50);
         double[] numbers = new double[count];
-        for (int i = 0; i < count; i++) {
-            numbers[i] = readDouble("Число №" + (i + 1) + ": ");
+
+        for (int i = 0; i < numbers.length; i++) {
+            numbers[i] = readDouble("Число " + (i + 1) + ": ");
         }
-        if (count > 0) {
-            System.out.printf("Сумма введенных чисел: %.6f%n", sumUtils.sum(numbers));
-        } else {
-            System.out.println("Дополнительное сложение не запрашивалось.");
-        }
+
+        SumUtils sum = new SumUtils();
+        double result = sum.sum(numbers);
+
+        System.out.println("Вызван метод SumUtils.sum() из главного класса Main.");
+        System.out.println("Результат сложения: " + result);
     }
 
-    /** Задания 6.3 и 8.5: сравнение линий и глубокое клонирование. */
-    private void demonstrateLineEqualsAndClone() {
-        section("7. Задания 6.3 и 8.5 — equals() и clone() для линии");
+    private void task7Power(String[] args) {
+        section("Задание 7. Пакеты", "Задача 3. Возведение в степень");
 
-        Line original = new Line(
-                readInt("Начало — X1: "),
-                readInt("Начало — Y1: "),
-                readInt("Конец — X2: "),
-                readInt("Конец — Y2: ")
-        );
-        Line sameLine = new Line(original.getStart(), original.getEnd());
-        Line reversedLine = new Line(original.getEnd(), original.getStart());
-
-        System.out.println("Исходная линия: " + original);
-        System.out.println("Линия с теми же началом и концом: " + sameLine);
-        System.out.println("original.equals(sameLine): " + original.equals(sameLine));
-        System.out.println("Совпадают hashCode равных линий: " + (original.hashCode() == sameLine.hashCode()));
-        System.out.println("Линия с обратным направлением: " + reversedLine);
-        System.out.println("original.equals(reversedLine): " + original.equals(reversedLine));
-
-        Line clone = original.clone();
-        System.out.println("Клон линии: " + clone);
-        clone.setStart(
-                readInt("Задайте новую X начальной точки клона: "),
-                readInt("Задайте новую Y начальной точки клона: ")
-        );
-        System.out.println("Измененный клон: " + clone);
-        System.out.println("Оригинал после изменения клона (должен остаться прежним): " + original);
-    }
-
-    /** Задание 7.3: X и Y принимаются как строки, включая аргументы командной строки. */
-    private void demonstratePower(String[] args) {
-        section("8. Задание 7.3 — возведение X в степень Y");
-
-        PowerCalculator calculator = new PowerCalculator();
         String x;
         String y;
-
         if (args != null && args.length == 2) {
             x = args[0];
             y = args[1];
-            System.out.println("Получены аргументы командной строки: X = " + x + ", Y = " + y);
+            System.out.println("Числа получены из аргументов командной строки: X = " + x + ", Y = " + y);
         } else {
-            if (args != null && args.length > 0) {
-                System.out.println("Для расчета степени нужны ровно два аргумента. Введите X и Y с клавиатуры.");
-            }
+            System.out.println("Для запуска через командную строку укажите два параметра: X и Y.");
             x = readText("Введите целое число X: ");
             y = readText("Введите целое число Y: ");
         }
 
+        PowerCalculator calculator = new PowerCalculator();
         while (true) {
             try {
-                double result = calculator.calculate(x, y);
-                System.out.println("Результат: " + result);
                 System.out.println(calculator);
+                System.out.println(x + " в степени " + y + " = " + calculator.calculate(x, y));
                 break;
             } catch (NumberFormatException exception) {
-                System.out.println("Ошибка: X и Y должны быть целыми числами в диапазоне int.");
-                x = readText("Повторно введите X: ");
-                y = readText("Повторно введите Y: ");
+                System.out.println("X и Y должны быть целыми числами в диапазоне int.");
             } catch (IllegalArgumentException exception) {
-                System.out.println("Ошибка: " + exception.getMessage());
-                x = readText("Повторно введите X: ");
-                y = readText("Повторно введите Y: ");
+                System.out.println(exception.getMessage());
+            }
+            x = readText("Повторно введите X: ");
+            y = readText("Повторно введите Y: ");
+        }
+    }
+
+    private void task8CloneLine(Line original) {
+        section("Задание 8. Пакетная инкапсуляция", "Задача 5. Клонирование линии");
+
+        Line copy = original.clone();
+        System.out.println("Исходная линия: " + original);
+        System.out.println("Копия линии: " + copy);
+        System.out.println("До изменения линии равны: " + original.equals(copy));
+
+        Point2D originalStart = original.getStart();
+        int newX;
+        int newY;
+        do {
+            newX = readInt("Новое X начала копии: ");
+            newY = readInt("Новое Y начала копии: ");
+            if (newX == originalStart.getX() && newY == originalStart.getY()) {
+                System.out.println("Введите координаты, отличающиеся от начала исходной линии.");
+            }
+        } while (newX == originalStart.getX() && newY == originalStart.getY());
+
+        copy.setStart(new Point2D(newX, newY));
+        System.out.println("Измененная копия: " + copy);
+        System.out.println("Исходная линия: " + original);
+        System.out.println("Исходная линия не изменилась: " + !original.equals(copy));
+    }
+
+    private int[] readIntArray(String prompt, int minCount, int maxCount) {
+        while (true) {
+            System.out.print(prompt);
+            String line = scanner.nextLine().trim();
+            if (line.isEmpty()) {
+                if (minCount == 0) {
+                    return new int[0];
+                }
+                System.out.println("Нужно ввести хотя бы одно число.");
+                continue;
+            }
+
+            String[] parts = line.split("[,;\\s]+");
+            if (parts.length == 0 || parts.length < minCount || parts.length > maxCount) {
+                System.out.println("Количество чисел должно быть от " + minCount + " до " + maxCount + ".");
+                continue;
+            }
+
+            int[] result = new int[parts.length];
+            boolean valid = true;
+            for (int i = 0; i < parts.length; i++) {
+                try {
+                    result[i] = Integer.parseInt(parts[i]);
+                } catch (NumberFormatException exception) {
+                    System.out.println("Значение \"" + parts[i] + "\" не является целым числом.");
+                    valid = false;
+                    break;
+                }
+            }
+            if (valid) {
+                return result;
             }
         }
     }
@@ -335,11 +419,11 @@ public class Main {
     private int readInt(String prompt) {
         while (true) {
             System.out.print(prompt);
-            String text = input.nextLine().trim();
+            String value = scanner.nextLine().trim();
             try {
-                return Integer.parseInt(text);
+                return Integer.parseInt(value);
             } catch (NumberFormatException exception) {
-                System.out.println("Некорректный ввод. Требуется целое число.");
+                System.out.println("Введите целое число.");
             }
         }
     }
@@ -350,45 +434,57 @@ public class Main {
             if (value >= min && value <= max) {
                 return value;
             }
-            System.out.println("Значение должно находиться в диапазоне от " + min + " до " + max + ".");
+            System.out.println("Введите число от " + min + " до " + max + ".");
         }
     }
 
     private double readDouble(String prompt) {
         while (true) {
             System.out.print(prompt);
-            String text = input.nextLine().trim().replace(',', '.');
+            String value = scanner.nextLine().trim().replace(',', '.');
             try {
-                double value = Double.parseDouble(text);
-                if (Double.isFinite(value)) {
-                    return value;
+                double number = Double.parseDouble(value);
+                if (Double.isFinite(number)) {
+                    return number;
                 }
-            } catch (NumberFormatException ignored) {
-                // Сообщение об ошибке выводится ниже, после общей проверки.
+            } catch (NumberFormatException exception) {
+                System.out.println("Введите корректное вещественное число.");
+                continue;
             }
-            System.out.println("Некорректный ввод. Требуется конечное вещественное число.");
+            System.out.println("Число должно быть конечным.");
         }
     }
 
     private String readText(String prompt) {
         while (true) {
             System.out.print(prompt);
-            String text = input.nextLine().trim();
-            if (!text.isEmpty()) {
-                return text;
+            String value = scanner.nextLine().trim();
+            if (!value.isEmpty()) {
+                return value;
             }
             System.out.println("Строка не должна быть пустой.");
         }
     }
 
-    private void section(String title) {
-        System.out.println("\n------------------------------------------------------------");
-        System.out.println(title);
-        System.out.println("------------------------------------------------------------");
+    private String readTime(String prompt) {
+        while (true) {
+            String value = readText(prompt);
+            if (AbstractPoint.isValidTime(value)) {
+                return value;
+            }
+            System.out.println("Введите время в формате ЧЧ:ММ от 00:00 до 23:59.");
+        }
+    }
+
+    private void section(String task, String subtask) {
+        System.out.println("\n--------------------------------------------------");
+        System.out.println(task);
+        System.out.println(subtask);
+        System.out.println("--------------------------------------------------");
     }
 
     @Override
     public String toString() {
-        return "Главный демонстратор лабораторной работы № 3, вариант 1";
+        return title;
     }
 }

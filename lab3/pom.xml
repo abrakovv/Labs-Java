@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -6,9 +5,7 @@
 
     <groupId>ru.abrakov</groupId>
     <artifactId>lab3-variant1</artifactId>
-    <version>1.0.0</version>
-    <name>Лабораторная работа №3 — вариант 1</name>
-    <description>Реализация заданий по объектно-ориентированному программированию</description>
+    <version>1.0</version>
 
     <properties>
         <maven.compiler.release>17</maven.compiler.release>
@@ -23,8 +20,6 @@
                 <version>3.13.0</version>
                 <configuration>
                     <release>17</release>
-                    <encoding>UTF-8</encoding>
-                    <showWarnings>true</showWarnings>
                 </configuration>
             </plugin>
         </plugins>

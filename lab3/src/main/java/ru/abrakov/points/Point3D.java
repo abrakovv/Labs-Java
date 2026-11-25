@@ -2,15 +2,23 @@ package ru.abrakov.points;
 
 import ru.abrakov.geometry.Point2D;
 
-import java.util.Objects;
-
-/** Трехмерная точка — наследник двумерной точки с дополнительной координатой Z. */
 public class Point3D extends Point2D {
     private int z;
 
     public Point3D(int x, int y, int z) {
         super(x, y);
         this.z = z;
+    }
+
+    public Point3D(Point3D other) {
+        this(requirePoint(other).getX(), other.getY(), other.getZ());
+    }
+
+    private static Point3D requirePoint(Point3D point) {
+        if (point == null) {
+            throw new IllegalArgumentException("Точка не должна быть null.");
+        }
+        return point;
     }
 
     public int getZ() {
@@ -21,29 +29,9 @@ public class Point3D extends Point2D {
         this.z = z;
     }
 
-    /** Евклидово расстояние между двумя трехмерными точками. */
-    public double distanceTo(Point3D other) {
-        Objects.requireNonNull(other, "Вторая точка не должна быть null");
-        double dx = (double) getX() - other.getX();
-        double dy = (double) getY() - other.getY();
-        double dz = (double) z - other.z;
-        return Math.hypot(Math.hypot(dx, dy), dz);
-    }
-
-    @Override
-    public boolean equals(Object object) {
-        if (this == object) {
-            return true;
-        }
-        if (!(object instanceof Point3D other)) {
-            return false;
-        }
-        return getX() == other.getX() && getY() == other.getY() && z == other.z;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getX(), getY(), z);
+    public void setCoordinates(int x, int y, int z) {
+        super.setCoordinates(x, y);
+        this.z = z;
     }
 
     @Override

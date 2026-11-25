@@ -1,5 +1,1 @@
-.idea/
-*.iml
-target/
-out/
-*.class
+.idea/\n*.iml\ntarget/\nout/\n*.class\n

@@ -1,33 +1,32 @@
 package ru.abrakov.main;
 
-/** Сервис для сложения произвольного набора вещественных чисел. */
 public class SumUtils {
-    private final String operationName;
+    private final String name;
 
     public SumUtils() {
-        this.operationName = "Сложение вещественных чисел";
+        this.name = "Сложение чисел";
     }
 
     public double sum(double... numbers) {
-        if (numbers == null) {
-            throw new IllegalArgumentException("Набор чисел не должен быть null");
+        if (numbers == null || numbers.length == 0) {
+            throw new IllegalArgumentException("Для сложения нужно передать хотя бы одно число.");
         }
 
         double result = 0.0;
-        for (int i = 0; i < numbers.length; i++) {
-            if (!Double.isFinite(numbers[i])) {
-                throw new IllegalArgumentException("Элемент с индексом " + i + " не является конечным числом");
+        for (double number : numbers) {
+            if (!Double.isFinite(number)) {
+                throw new IllegalArgumentException("Все числа должны быть конечными.");
             }
-            result += numbers[i];
-        }
-        if (!Double.isFinite(result)) {
-            throw new ArithmeticException("Результат сложения выходит за допустимый диапазон double");
+            result += number;
+            if (!Double.isFinite(result)) {
+                throw new IllegalArgumentException("Сумма выходит за допустимый диапазон.");
+            }
         }
         return result;
     }
 
     @Override
     public String toString() {
-        return "Сервис: " + operationName;
+        return name;
     }
 }

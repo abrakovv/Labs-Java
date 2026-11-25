@@ -1,18 +1,27 @@
 package ru.abrakov.geometry;
 
-import java.util.Objects;
-
-/**
- * Двумерная точка на координатной плоскости.
- * Координаты доступны для чтения и изменения через методы класса.
- */
 public class Point2D {
     private int x;
     private int y;
 
+    public Point2D() {
+        this(0, 0);
+    }
+
     public Point2D(int x, int y) {
         this.x = x;
         this.y = y;
+    }
+
+    public Point2D(Point2D other) {
+        this(requirePoint(other).x, other.y);
+    }
+
+    private static Point2D requirePoint(Point2D point) {
+        if (point == null) {
+            throw new IllegalArgumentException("Точка не должна быть null.");
+        }
+        return point;
     }
 
     public int getX() {
@@ -36,28 +45,13 @@ public class Point2D {
         this.y = y;
     }
 
-    /** Возвращает евклидово расстояние до другой двумерной точки. */
     public double distanceTo(Point2D other) {
-        Objects.requireNonNull(other, "Вторая точка не должна быть null");
-        return Math.hypot((double) x - other.x, (double) y - other.y);
+        requirePoint(other);
+        return Math.hypot((double) other.x - x, (double) other.y - y);
     }
 
-    @Override
-    public boolean equals(Object object) {
-        if (this == object) {
-            return true;
-        }
-        // Точки разных размерностей не считаются равными.
-        if (object == null || getClass() != object.getClass()) {
-            return false;
-        }
-        Point2D point = (Point2D) object;
-        return x == point.x && y == point.y;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(x, y);
+    public Point2D copy() {
+        return new Point2D(this);
     }
 
     @Override
